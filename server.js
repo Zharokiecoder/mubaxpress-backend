@@ -37,19 +37,12 @@ const io = new Server(server, {
   }
 });
 
-// CORS Middleware
+// Simple CORS Middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Body parser middleware
@@ -60,11 +53,8 @@ app.use(cookieParser());
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+// Database connection (removed deprecated options)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
